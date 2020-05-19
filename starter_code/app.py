@@ -9,10 +9,13 @@ from flask import Flask, render_template, request, Response, flash, redirect, ur
 from flask_moment import Moment
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
+from datetime import date
 from forms import *
+
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -101,33 +104,61 @@ def index():
 
 @app.route('/venues')
 def venues():
-  # TODO: num_shows should be aggregated based on number of upcoming shows per venue.
-  venue1 = Venue.query.get(1)
-  venue2 = Venue.query.get(2)
-  venue3 = Venue.query.get(3)
-  data=[{
-    "city": venue1.city,
-    "state": venue1.state,
-    "venues": [{
-      "id": venue1.id,
-      "name": venue1.name,
-      "num_upcoming_shows": len(venue1.shows),
-    },
-    {
-      "id": venue3.id,
-      "name": venue3.name,
-      "num_upcoming_shows": len(venue3.shows),
-    }]
-  }, {
-    "city": venue2.city,
-    "state": venue2.state,
-    "venues": [{
-      "id": venue2.id,
-      "name": venue2.name,
-      "num_upcoming_shows": len(venue2.shows),
-    }]
-  }]
-  return render_template('pages/venues.html', areas=data);
+    # TODO: num_shows should be aggregated based on number of upcoming shows per venue.
+    db_venues = Venue.query.all()
+    data = []
+    for db_venue in db_venues:
+        venue = {
+            "id": db_venue.id,
+            "name": db_venue.name,
+            "num_upcoming_shows": 0
+        }
+
+    # print(x for x in data if x == db_venue.id)
+
+        if (len(data) == 0 || 'San' not in data[0]):
+            print('new city')
+            data.append({
+                "city": db_venue.city,
+                "state": db_venue.state,
+                "venues": [venue]
+            })
+            print(data)
+        else:
+            print('already defined')
+            data.append({
+                "venues": [venue]
+            })
+
+  # for city in range(len(city_list)):
+  #   venue = Venue.query.get(city + 1)
+  #   city_venues = Venue.query.filter(Venue.city == venue.city).all()
+  #   entry1 = {
+  #         "city": venue.city,
+  #         "state": venue.state
+  #   }
+  #
+  #
+  #   for x in range(len(city_venues)):
+  #       venue = city_venues[x]
+  #       shows = Show.query.filter(Show.venue_id == venue.id).all()
+  #       upcoming_shows = 0
+  #
+  #       for y in range(len(shows)):
+  #           if (shows[y].start_time > now):
+  #               upcoming_shows += 1
+  #
+  #               entry2 = {
+  #                   "id": venue.id,
+  #                   "name": venue.name,
+  #                   "num_upcoming_shows": upcoming_shows
+  #               }
+  #               data.append(entry2)
+  #               # entries.append(entry2)
+
+
+
+    # return render_template('pages/venues.html', areas=data)
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
@@ -345,7 +376,8 @@ def shows():
   # TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
     data = []
-    for x in [1, 2, 3, 4, 5]:
+    num_shows = len(Show.query.get.all())
+    for x in range(num_shows + 1):
       show = Show.query.get(x)
       data.append({
       "venue_id": show.venue_id,
