@@ -114,9 +114,7 @@ def venues():
             "num_upcoming_shows": 0
         }
 
-    # print(x for x in data if x == db_venue.id)
-
-        if (len(data) == 0 || 'San' not in data[0]):
+        if (len(data) == 0 or db_venue.city not in data[0].values()):
             print('new city')
             data.append({
                 "city": db_venue.city,
@@ -126,39 +124,10 @@ def venues():
             print(data)
         else:
             print('already defined')
-            data.append({
-                "venues": [venue]
-            })
+            old_venue = data[0]['venues'][0]
+            data[0]['venues'] = [old_venue, venue]
 
-  # for city in range(len(city_list)):
-  #   venue = Venue.query.get(city + 1)
-  #   city_venues = Venue.query.filter(Venue.city == venue.city).all()
-  #   entry1 = {
-  #         "city": venue.city,
-  #         "state": venue.state
-  #   }
-  #
-  #
-  #   for x in range(len(city_venues)):
-  #       venue = city_venues[x]
-  #       shows = Show.query.filter(Show.venue_id == venue.id).all()
-  #       upcoming_shows = 0
-  #
-  #       for y in range(len(shows)):
-  #           if (shows[y].start_time > now):
-  #               upcoming_shows += 1
-  #
-  #               entry2 = {
-  #                   "id": venue.id,
-  #                   "name": venue.name,
-  #                   "num_upcoming_shows": upcoming_shows
-  #               }
-  #               data.append(entry2)
-  #               # entries.append(entry2)
-
-
-
-    # return render_template('pages/venues.html', areas=data)
+    return render_template('pages/venues.html', areas=data)
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
