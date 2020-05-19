@@ -385,9 +385,8 @@ def shows():
   # TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
     data = []
-    num_shows = len(Show.query.get.all())
-    for x in range(num_shows + 1):
-      show = Show.query.get(x)
+    shows = Show.query.all()
+    for show in shows:
       data.append({
       "venue_id": show.venue_id,
       "venue_name": show.venue_name,
@@ -409,16 +408,25 @@ def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
   # TODO: insert form data as a new Show record in the db, instead
   form = ShowForm(request.form)
+  num_shows = Show.query.count()
+  artist = Artist.query.get(form.artist_id.data)
+  venue = Venue.query.get(form.venue_id.data)
+  print(artist)
   show = Show(
+    id = num_shows + 1,
     artist_id = form.artist_id.data,
+    artist_name = artist.name,
+    artist_image_link = artist.image_link,
     venue_id = form.venue_id.data,
+    venue_name = venue.name,
     start_time = form.start_time.data
   )
-  show.insert()
+  db.session.add(show)
+  db.session.commit()
   # on successful db insert, flash success
   flash('Show was successfully listed!')
   # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Show could not be listed.')
+  # flash('An error occurred. Show could not be listed.')
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
   return render_template('pages/home.html')
 
