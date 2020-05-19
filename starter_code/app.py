@@ -98,7 +98,6 @@ app.jinja_env.filters['datetime'] = format_datetime
 def index():
   return render_template('pages/home.html')
 
-
 #  Venues
 #  ----------------------------------------------------------------
 
@@ -132,7 +131,6 @@ def venues():
             old_venue = data[x]['venues'][0]
             data[x]['venues'] = [old_venue, venue]
             x += 1
-    print(data)        
     return render_template('pages/venues.html', areas=data)
 
 @app.route('/venues/search', methods=['POST'])
@@ -154,7 +152,31 @@ def search_venues():
 def show_venue(venue_id):
   # shows the venue page with the given venue_id
   venue = Venue.query.get(venue_id)
-  shows = Show.query.filter(Show.venue_id == venue_id).all()
+  shows = venue.shows
+  past_list = []
+  upcoming_list = []
+  past_shows = 0
+  upcoming_shows = 0
+  for show in shows:
+    if (show.start_time > datetime.now()):
+        upcoming_shows += 1
+        entry =     {
+            "artist_id": show.artist_id,
+            "artist_name": show.artist_name,
+            "artist_image_link": show.artist_image_link,
+            "start_time": show.start_time.strftime('%m/%d/%Y, %H:%M')
+          }
+        upcoming_list.append(entry)
+    else:
+        past_shows += 1
+        entry =     {
+            "artist_id": show.artist_id,
+            "artist_name": show.artist_name,
+            "artist_image_link": show.artist_image_link,
+            "start_time": show.start_time.strftime('%m/%d/%Y, %H:%M')
+          }
+        past_list.append(entry)
+
   data={
     "id": venue.id,
     "name": venue.name,
@@ -168,19 +190,10 @@ def show_venue(venue_id):
     "seeking_talent": venue.seeking_talent,
     "seeking_description": venue.seeking_description,
     "image_link": venue.image_link,
-    "past_shows": [{
-      # "artist_id": 4,
-      # "artist_name": "Guns N Petals",
-      # "artist_image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
-      # "start_time": "2019-05-21T21:30:00.000Z"
-      "artist_id": shows[0],
-      "artist_name": shows,
-      "artist_image_link": shows,
-      "start_time": shows
-    }],
-    "upcoming_shows": [],
-    "past_shows_count": 1,
-    "upcoming_shows_count": 0,
+    "past_shows": past_list,
+    "upcoming_shows": upcoming_list,
+    "past_shows_count": past_shows,
+    "upcoming_shows_count": upcoming_shows,
   }
   return render_template('pages/show_venue.html', venue=data)
 
