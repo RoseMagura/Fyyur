@@ -109,12 +109,6 @@ def venues():
     data = []
     distinct_places = db.session.query(Venue.city, Venue.state).\
     group_by(Venue.city, Venue.state).all()
-    # for db_venue in db_venues:
-    #     shows = db_venue.shows
-    #     upcoming_shows = 0
-    #     for show in shows:
-    #         if (show.start_time > datetime.now()):
-    #             upcoming_shows += 1
 
     for place in distinct_places:
         venue = {}
@@ -125,10 +119,15 @@ def venues():
             }
         each = Venue.query.filter(Venue.city == place.city, Venue.state == place.state).all()
         for y in each:
+            shows = y.shows
+            upcoming_shows = 0
+            for show in shows:
+                if (show.start_time > datetime.now()):
+                    upcoming_shows += 1
             venue = {
                 "id": y.id,
                 "name": y.name,
-                "num_upcoming_shows": 0
+                "num_upcoming_shows": upcoming_shows
             }
             entry['venues'].append(venue)
         data.append(entry)
@@ -136,18 +135,19 @@ def venues():
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
-  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
-  # seach for Hop should return "The Musical Hop".
-  # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
-  response={
+    # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
+    # seach for Hop should return "The Musical Hop".
+    # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
+
+    response={
     "count": 1,
     "data": [{
       "id": 2,
       "name": "The Dueling Pianos Bar",
       "num_upcoming_shows": 0,
     }]
-  }
-  return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
+    }
+    return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
@@ -238,12 +238,20 @@ def create_venue_submission():
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
-  # TODO: Complete this endpoint for taking a venue_id, and using
-  # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
-
-  # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
-  # clicking that button delete it from the db then redirect the user to the homepage
-  return None
+    # TODO: Complete this endpoint for taking a venue_id, and using
+    # SQLAlchemy ORM to delete a record. Handle cases where the session
+    #commit could fail.
+    venue = Venue.query.get(venue_id)
+    try:
+        db.session.delete(venue)
+        db.session.commit()
+    except:
+        db.session.rollback()
+    finally:
+        db.session.close()
+    # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
+    # clicking that button delete it from the db then redirect the user to the homepage
+    return None
 
 #  Artists
 #  ----------------------------------------------------------------
