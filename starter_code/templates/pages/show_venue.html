@@ -93,18 +93,18 @@ block content %}
     </div>
     {% endfor %}
   </div>
-  <button type="button" onclick="venueDelete({{venue.id}})">Delete Venue</button>
+  <button type="button" onclick="venueDelete({{venue.id}})">
+    Delete Venue
+  </button>
 </section>
 {% block javascript %}
-	<script>
-	  button = document.getElementById("delete");
-		function venueDelete(venue_id){
-			console.log(venue_id);
-			fetch('/venues/' + venue_id, {method: 'DELETE'})
-			.then(setTimeout(function(){
-				window.location.href = '/venues'
-			}, 1000) )
-			}
-	</script>
-{% endblock %}
-{% endblock %}
+<script>
+  function venueDelete(venue_id) {
+    fetch("/venues/" + venue_id, { method: "DELETE" }).then(
+      setTimeout(function() {
+        window.location.href = "/venues";
+      }, 1000)
+    );
+  }
+</script>
+{% endblock %} {% endblock %}
