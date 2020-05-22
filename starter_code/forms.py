@@ -19,9 +19,26 @@ class ShowForm(Form):
     )
 
 class Genre(Enum):
-    ALTERNATIVE = 'Alternative'
-    BLUES = 'Blues'
-    CLASSICAL = 'Classical'
+    Alternative = 'Alternative'
+    Blues = 'Blues'
+    Classical = 'Classical'
+    Country = 'Country'
+    Electronic = 'Electronic'
+    Folk = 'Folk'
+    Funk = 'Funk'
+    HipHop = 'Hip-Hop'
+    Heavy_Metal = 'Heavy Metal'
+    Instrumental = 'Instrumental'
+    Jazz = 'Jazz'
+    Musical_Theatre = 'Musical Theatre'
+    Pop = 'Pop'
+    Punk = 'Punk'
+    RB = 'R&B'
+    Reggae = 'Reggae'
+    Rock_N_Roll = 'Rock N Roll'
+    Soul = 'Soul'
+    Other = 'Other'
+    ORLY = 'ORLY'
 choices = []
 for genre in Genre:
     choices.append((genre, genre))
@@ -101,7 +118,27 @@ class VenueForm(Form):
 
     genres = SelectMultipleField(
         # TODO implement enum restriction
-        'genres', validators=[DataRequired()], choices=choices
+        'genres', validators=[DataRequired()], choices=[
+            ('Alternative', 'Alternative'),
+            ('Blues', 'Blues'),
+            ('Classical', 'Classical'),
+            ('Country', 'Country'),
+            ('Electronic', 'Electronic'),
+            ('Folk', 'Folk'),
+            ('Funk', 'Funk'),
+            ('Hip-Hop', 'Hip-Hop'),
+            ('Heavy Metal', 'Heavy Metal'),
+            ('Instrumental', 'Instrumental'),
+            ('Jazz', 'Jazz'),
+            ('Musical Theatre', 'Musical Theatre'),
+            ('Pop', 'Pop'),
+            ('Punk', 'Punk'),
+            ('R&B', 'R&B'),
+            ('Reggae', 'Reggae'),
+            ('Rock n Roll', 'Rock n Roll'),
+            ('Soul', 'Soul'),
+            ('Other', 'Other'),
+        ]
     )
     facebook_link = StringField(
         'facebook_link', validators=[URL()]

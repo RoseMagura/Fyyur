@@ -9,7 +9,8 @@ from flask import Flask, render_template, request, Response, flash, redirect, ur
 from flask_moment import Moment
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, distinct
+import enum
+from sqlalchemy import func, distinct, Enum
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
@@ -33,12 +34,35 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://rosie:password@localhost:5
 # Models.
 #----------------------------------------------------------------------------#
 
+class Genres(enum.Enum):
+    Alternative = 'Alternative'
+    Blues = 'Blues'
+    Classical = 'Classical'
+    Country = 'Country'
+    Electronic = 'Electronic'
+    Folk = 'Folk'
+    Funk = 'Funk'
+    HipHop = 'Hip-Hop'
+    Heavy_Metal = 'Heavy Metal'
+    Instrumental = 'Instrumental'
+    Jazz = 'Jazz'
+    Musical_Theatre = 'Musical Theatre'
+    Pop = 'Pop'
+    Punk = 'Punk'
+    RB = 'R&B'
+    Reggae = 'Reggae'
+    Rock_N_Roll = 'Rock N Roll'
+    Soul = 'Soul'
+    Other = 'Other'
+    def __str__(self):
+        return str(self.value)
+
 class Venue(db.Model):
     __tablename__ = 'Venue'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
+    genres = db.Column(db.Enum(Genres))
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
@@ -51,8 +75,8 @@ class Venue(db.Model):
     num_upcoming_shows = db.Column(db.Integer, default=0)
     shows = db.relationship('Show', backref = 'Venue', lazy=True)
 
-    def __repr__(self):
-        return '<Show {} {}>'.format(self.id, self.name)
+    # def __repr__(self):
+    #     return '<Show {} {}>'.format(self.id, self.name)
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
@@ -63,7 +87,7 @@ class Artist(db.Model):
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
     website = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
+    genres = db.Column(db.Enum(Genres))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean())
@@ -85,8 +109,8 @@ class Show(db.Model):
     venue_name = db.Column(db.String(120))
     venue_image_link = db.Column(db.String(500))
 
-    def __repr__(self):
-        return '<Show {} {}>'.format(self.artist_id, self.venue_id)
+    # def __repr__(self):
+    #     return '<Show {} {}>'.format(self.artist_id, self.venue_id)
 
 #----------------------------------------------------------------------------#
 # Filters.
@@ -198,7 +222,7 @@ def show_venue(venue_id):
     data={
         "id": venue.id,
         "name": venue.name,
-        "genres": venue.genres.split(','),
+        "genres": venue.genres,
         "address": venue.address,
         "city": venue.city,
         "state": venue.state,
@@ -282,20 +306,28 @@ def artists():
   data = Artist.query.all()
   return render_template('pages/artists.html', artists=data)
 
-@app.route('/artists/search', methods=['POST'])
+@app.route('/artists/search', methods=['GET'])
 def search_artists():
-  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
-  # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
-  # search for "band" should return "The Wild Sax Band".
-  response={
-    "count": 1,
-    "data": [{
-      "id": 4,
-      "name": "Guns N Petals",
-      "num_upcoming_shows": 0,
-    }]
-  }
-  return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
+    # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
+    # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
+    # search for "band" should return "The Wild Sax Band".
+    search_str = request.args.get('search_term')
+    artist_query = Artist.query.filter(Artist.name.ilike('%{}%'.format(search_str)))
+    artist_list = artist_query.all()
+    results_list = []
+    for artist in artist_list:
+        data = {
+            'id': artist.id,
+            'name':  artist.name,
+            'num_upcoming_shows': artist.num_upcoming_shows
+        }
+        results_list.append(data)
+
+    response={
+    'count': len(artist_list),
+    'data': results_list
+    }
+    return render_template('pages/search_artists.html', results=response, search_term=search_str)
 
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
@@ -331,7 +363,7 @@ def show_artist(artist_id):
     data={
         "id": artist.id,
         "name": artist.name,
-        "genres": artist.genres.split(','),
+        "genres": artist.genres,
         "city": artist.city,
         "state": artist.state,
         "phone": artist.phone,
@@ -387,7 +419,7 @@ def edit_artist_submission(artist_id):
     artist = {
             "id": artist.id,
             "name": artist.name,
-            "genres": artist.genres.split(','),
+            "genres": artist.genres,
             "city": artist.city,
             "state": artist.state,
             "phone": artist.phone,
