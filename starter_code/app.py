@@ -242,9 +242,6 @@ def create_venue_submission():
             #show a generic image for new venues
             image_link = 'https://i.guim.co.uk/img/media/ad98f2dc808f18131e35e59c05ba6212671e8227/94_0_3061_1838/master/3061.jpg?width=1920&quality=85&auto=format&fit=max&s=c515d483b75926f0d68512f263c2c26f'
         )
-        if not form.validate():
-            flash(form.errors)
-            return redirect(url_for('create_venue_form'))
         db.session.add(venue)
         db.session.commit()
         # on successful db insert, flash success
@@ -466,9 +463,7 @@ def create_artist_submission():
         seeking_description = form.seeking_description.data,
         image_link = form.image_link.data
 )
-    if not form.validate():
-        flash(form.errors)
-        return redirect(url_for('create_artist_form'))
+
     try:
         db.session.add(artist)
         db.session.commit()
