@@ -18,31 +18,6 @@ class ShowForm(Form):
         default= datetime.today()
     )
 
-class Genre(Enum):
-    Alternative = 'Alternative'
-    Blues = 'Blues'
-    Classical = 'Classical'
-    Country = 'Country'
-    Electronic = 'Electronic'
-    Folk = 'Folk'
-    Funk = 'Funk'
-    HipHop = 'Hip-Hop'
-    Heavy_Metal = 'Heavy Metal'
-    Instrumental = 'Instrumental'
-    Jazz = 'Jazz'
-    Musical_Theatre = 'Musical Theatre'
-    Pop = 'Pop'
-    Punk = 'Punk'
-    RB = 'R&B'
-    Reggae = 'Reggae'
-    Rock_N_Roll = 'Rock N Roll'
-    Soul = 'Soul'
-    Other = 'Other'
-    ORLY = 'ORLY'
-choices = []
-for genre in Genre:
-    choices.append((genre, genre))
-
 class VenueForm(Form):
     name = StringField(
         'name', validators=[DataRequired()]

@@ -9,8 +9,7 @@ from flask import Flask, render_template, request, Response, flash, redirect, ur
 from flask_moment import Moment
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-import enum
-from sqlalchemy import func, distinct, Enum
+from sqlalchemy import func, distinct
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
@@ -34,35 +33,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://rosie:password@localhost:5
 # Models.
 #----------------------------------------------------------------------------#
 
-class Genres(enum.Enum):
-    Alternative = 'Alternative'
-    Blues = 'Blues'
-    Classical = 'Classical'
-    Country = 'Country'
-    Electronic = 'Electronic'
-    Folk = 'Folk'
-    Funk = 'Funk'
-    HipHop = 'Hip-Hop'
-    Heavy_Metal = 'Heavy Metal'
-    Instrumental = 'Instrumental'
-    Jazz = 'Jazz'
-    Musical_Theatre = 'Musical Theatre'
-    Pop = 'Pop'
-    Punk = 'Punk'
-    RB = 'R&B'
-    Reggae = 'Reggae'
-    Rock_N_Roll = 'Rock N Roll'
-    Soul = 'Soul'
-    Other = 'Other'
-    def __str__(self):
-        return str(self.value)
-
 class Venue(db.Model):
     __tablename__ = 'Venue'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, unique=True)
     name = db.Column(db.String(120))
-    genres = db.Column(db.Enum(Genres))
+    genres = db.Column(db.String(120))
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
@@ -81,13 +57,13 @@ class Venue(db.Model):
 class Artist(db.Model):
     __tablename__ = 'Artist'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, unique=True)
     name = db.Column(db.String(120))
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
     website = db.Column(db.String(120))
-    genres = db.Column(db.Enum(Genres))
+    genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean())
@@ -222,7 +198,7 @@ def show_venue(venue_id):
     data={
         "id": venue.id,
         "name": venue.name,
-        "genres": venue.genres,
+        "genres": venue.genres.split(','),
         "address": venue.address,
         "city": venue.city,
         "state": venue.state,
@@ -306,7 +282,7 @@ def artists():
   data = Artist.query.all()
   return render_template('pages/artists.html', artists=data)
 
-@app.route('/artists/search', methods=['GET'])
+@app.route('/artists/search', methods=['GET', 'POST'])
 def search_artists():
     # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
     # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
@@ -363,7 +339,7 @@ def show_artist(artist_id):
     data={
         "id": artist.id,
         "name": artist.name,
-        "genres": artist.genres,
+        "genres": artist.genres.split(','),
         "city": artist.city,
         "state": artist.state,
         "phone": artist.phone,
@@ -419,7 +395,7 @@ def edit_artist_submission(artist_id):
     artist = {
             "id": artist.id,
             "name": artist.name,
-            "genres": artist.genres,
+            "genres": artist.genres.split(','),
             "city": artist.city,
             "state": artist.state,
             "phone": artist.phone,
