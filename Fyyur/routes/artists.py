@@ -11,7 +11,7 @@ bp = Blueprint("artists", __name__)
 
 
 @bp.route('/artists')
-def index():
+def artists():
     data = Artist.query.all()
     return render_template('pages/artists.html', artists=data)
 
@@ -101,16 +101,16 @@ def edit_artist(artist_id):
     artist.genres = form.genres.data
     artist.city = form.city.data
 
-    artist = Artist({
-        "id": artist_id,
-        "name": form.name.data,
-        "genres": form.genres.data,
-        "city": form.city.data,
-        "state": form.state.data,
-        "phone": form.phone.data,
-        "facebook_link": form.facebook_link.data,
-        "image_link": 'https://i.guim.co.uk/img/media/ad98f2dc808f18131e35e59c05ba6212671e8227/94_0_3061_1838/master/3061.jpg?width=1920&quality=85&auto=format&fit=max&s=c515d483b75926f0d68512f263c2c26f',
-    })
+    artist = Artist(
+        id = artist_id,
+        name = form.name.data,
+        genres = form.genres.data,
+        city = form.city.data,
+        state = form.state.data,
+        phone = form.phone.data,
+        facebook_link = form.facebook_link.data,
+        image_link = 'https://i.guim.co.uk/img/media/ad98f2dc808f18131e35e59c05ba6212671e8227/94_0_3061_1838/master/3061.jpg?width=1920&quality=85&auto=format&fit=max&s=c515d483b75926f0d68512f263c2c26f',
+    )
     try:
         db.session.add(artist)
         db.session.commit()
@@ -149,8 +149,6 @@ def edit_artist_submission(artist_id):
     return redirect(url_for('show_artist', artist_id=artist_id))
 
 # Create Artists
-
-
 @bp.route('/artists/create', methods=['GET'])
 def create_artist_form():
     form = ArtistForm()

@@ -8,6 +8,9 @@ from flask_migrate import Migrate
 from Fyyur.extensions import db
 import dateutil.parser
 import babel
+from flask import Blueprint, render_template, url_for
+import logging
+from logging import Formatter, FileHandler
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -42,6 +45,29 @@ def hello():
 app.register_blueprint(artists.bp)
 app.register_blueprint(venues.bp)
 app.register_blueprint(shows.bp)
+
+
+@app.errorhandler(404)
+def not_found_error(error):
+    # return render_template('errors/404.html'), 404
+    return '404 Page Not Found'
+
+
+@app.errorhandler(500)
+def server_error(error):
+    return render_template('errors/500.html'), 500
+
+
+if not app.debug:
+    file_handler = FileHandler('error.log')
+    file_handler.setFormatter(
+        Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+    )
+    app.logger.setLevel(logging.INFO)
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    app.logger.info('errors')
 
 
 #----------------------------------------------------------------------------#
