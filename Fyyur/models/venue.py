@@ -1,4 +1,5 @@
-from app import db
+from Fyyur.extensions import db
+
 
 class Venue(db.Model):
     __tablename__ = 'Venue'
@@ -16,7 +17,7 @@ class Venue(db.Model):
     seeking_talent = db.Column(db.Boolean(), default=False)
     seeking_description = db.Column(db.String(120))
     num_upcoming_shows = db.Column(db.Integer, default=0)
-    shows = db.relationship('Show', backref = 'Venue', lazy=True)
+    shows = db.relationship('Show', backref='Venue', lazy=True)
 
     def __repr__(self):
         return '<Show {} {}>'.format(self.id, self.name)

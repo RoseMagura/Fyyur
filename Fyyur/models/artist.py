@@ -1,4 +1,4 @@
-from app import db
+from Fyyur.extensions import db
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
@@ -19,3 +19,7 @@ class Artist(db.Model):
 
     def __repr__(self):
         return '<Show {} {}>'.format(self.id, self.name)
+
+
+def foo():
+    print('FOO')

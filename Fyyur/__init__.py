@@ -1,8 +1,13 @@
+from Fyyur.models.artist import Artist
+from Fyyur.models.venue import Venue
+from Fyyur.models.show import Show
+from Fyyur.routes import artists, venues, shows
 from flask import Flask
 from flask_moment import Moment
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
-
+from Fyyur.extensions import db
+import dateutil.parser
+import babel
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -10,19 +15,34 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
-db = SQLAlchemy(app)
+
+db.init_app(app)
+
 migrate = Migrate(app, db)
+
+
+def format_datetime(value, format='medium'):
+    date = dateutil.parser.parse(value)
+    if format == 'full':
+        format = "EEEE MMMM, d, y 'at' h:mma"
+    elif format == 'medium':
+        format = "EE MM, dd, y h:mma"
+    return babel.dates.format_datetime(date, format)
+
+
+app.jinja_env.filters['datetime'] = format_datetime
 
 
 @app.route('/')
 def hello():
-    return 'Hello, World!'
+    return 'Hello, World! App is running'
 
-from Fyyur.routes import artists, venues, shows
+
 # apply the blueprints to the app
-app.register_blueprint(artists.bp)    
+app.register_blueprint(artists.bp)
 app.register_blueprint(venues.bp)
 app.register_blueprint(shows.bp)
+
 
 #----------------------------------------------------------------------------#
 # Launch.

@@ -1,4 +1,7 @@
-from app import db
+from Fyyur.models.artist import Artist
+from Fyyur.models.venue import Venue
+from Fyyur.extensions import db
+
 
 class Show(db.Model):
     __tablename__ = 'Show'
