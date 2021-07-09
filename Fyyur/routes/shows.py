@@ -14,13 +14,18 @@ def shows():
     data = []
     shows = Show.query.all()
     for show in shows:
+      print(show.start_time)
       data.append({
       "venue_id": show.venue_id,
       "venue_name": show.venue_name,
       "artist_id": show.artist_id,
       "artist_name": show.artist_name,
       "artist_image_link": show.artist_image_link,
-      "start_time": show.start_time.strftime('%m/%d/%Y, %H:%M')})
+      "start_time": 
+      show.start_time
+      # show.start_time.strftime('%m/%d/%Y, %H:%M')
+      # datetime.strptime(show.start_time, '%Y%m/%d/, %H:%M')
+      })
 
     return render_template('pages/shows.html', shows=data)
 
