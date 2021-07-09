@@ -19,7 +19,3 @@ class Artist(db.Model):
 
     def __repr__(self):
         return '<Show {} {}>'.format(self.id, self.name)
-
-
-def foo():
-    print('FOO')

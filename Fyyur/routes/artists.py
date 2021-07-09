@@ -7,9 +7,9 @@ from Fyyur.extensions import db
 from forms import *
 
 bp = Blueprint("artists", __name__)
+
+
 # Read artists
-
-
 @bp.route('/artists')
 def artists():
     data = Artist.query.all()
@@ -90,9 +90,9 @@ def show_artist(artist_id):
     }
     return render_template('pages/show_artist.html', artist=data)
 
-# #  Update Artists
 
 
+#  Update Artists
 @bp.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
     artist = Artist.query.get(artist_id)
@@ -161,11 +161,12 @@ def create_artist_submission():
     # insert form data as a new Venue record in the db, instead
     # modify data to be the data object returned from db insertion
     form = ArtistForm(request.form)
+    print(form.genres.data, form.image_link.data)
     num_artists = Artist.query.count()
     artist = Artist(
         id=num_artists + 4,
         name=form.name.data,
-        genres=form.name.data,
+        genres=form.genres.data,
         city=form.city.data,
         state=form.state.data,
         phone=form.phone.data,

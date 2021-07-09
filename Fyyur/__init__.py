@@ -8,7 +8,7 @@ from flask_migrate import Migrate
 from Fyyur.extensions import db
 import dateutil.parser
 import babel
-from flask import Blueprint, render_template, url_for
+from flask import render_template
 import logging
 from logging import Formatter, FileHandler
 #----------------------------------------------------------------------------#
@@ -37,8 +37,8 @@ app.jinja_env.filters['datetime'] = format_datetime
 
 
 @app.route('/')
-def hello():
-    return 'Hello, World! App is running'
+def index():
+    return render_template('pages/home.html')
 
 
 # apply the blueprints to the app
