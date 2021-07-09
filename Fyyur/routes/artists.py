@@ -5,6 +5,7 @@ from Fyyur.models.show import Show
 from datetime import datetime
 from Fyyur.extensions import db
 from forms import *
+from Fyyur.utilities.helper_func import format_genres
 
 bp = Blueprint("artists", __name__)
 
@@ -71,6 +72,9 @@ def show_artist(artist_id):
                 "start_time": show.start_time.strftime('%m/%d/%Y, %H:%M')
             }
             past_list.append(entry)
+    # string formatting
+    artist.genres = format_genres(artist.genres)
+
     data = {
         "id": artist.id,
         "name": artist.name,

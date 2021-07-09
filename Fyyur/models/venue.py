@@ -20,4 +20,4 @@ class Venue(db.Model):
     shows = db.relationship('Show', backref='Venue', lazy=True)
 
     def __repr__(self):
-        return '<Show {} {}>'.format(self.id, self.name)
+        return '<{} {} {}>'.format(self.__class__, self.id, self.name)

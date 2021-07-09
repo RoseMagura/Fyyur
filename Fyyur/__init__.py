@@ -1,3 +1,6 @@
+import json
+import dateutil.parser
+import babel
 from Fyyur.models.artist import Artist
 from Fyyur.models.venue import Venue
 from Fyyur.models.show import Show
@@ -6,14 +9,22 @@ from flask import Flask
 from flask_moment import Moment
 from flask_migrate import Migrate
 from Fyyur.extensions import db
-import dateutil.parser
-import babel
 from flask import render_template
 import logging
 from logging import Formatter, FileHandler
-#----------------------------------------------------------------------------#
-# App Config.
-#----------------------------------------------------------------------------#
+from Fyyur.seeds.all_seeds import seed_artists, seed_shows, seed_venues
+
+
+def seed_database(db):
+    if len(Artist.query.all()) == 0:
+        seed_artists(db)
+
+    if len(Venue.query.all()) == 0:
+        seed_venues(db)
+
+    if len(Show.query.all()) == 0:
+        seed_shows(db)
+
 
 app = Flask(__name__)
 moment = Moment(app)
@@ -23,21 +34,19 @@ db.init_app(app)
 
 migrate = Migrate(app, db)
 
-
 def format_datetime(value, format='medium'):
-    date = dateutil.parser.parse(value)
-    if format == 'full':
-        format = "EEEE MMMM, d, y 'at' h:mma"
-    elif format == 'medium':
-        format = "EE MM, dd, y h:mma"
-    return babel.dates.format_datetime(date, format)
-
+  date = dateutil.parser.parse(value)
+  if format == 'full':
+      format="EEEE MMMM, d, y 'at' h:mma"
+  elif format == 'medium':
+      format="EE MM, dd, y h:mma"
+  return babel.dates.format_datetime(date, format)
 
 app.jinja_env.filters['datetime'] = format_datetime
 
-
 @app.route('/')
 def index():
+    seed_database(db)
     return render_template('pages/home.html')
 
 
@@ -69,12 +78,5 @@ if not app.debug:
     app.logger.addHandler(file_handler)
     app.logger.info('errors')
 
-
-#----------------------------------------------------------------------------#
-# Launch.
-#----------------------------------------------------------------------------#
-
-
-# Default port:
 if __name__ == '__main__':
     app.run()
