@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import dateutil.parser
 import babel
@@ -34,15 +35,21 @@ db.init_app(app)
 
 migrate = Migrate(app, db)
 
+
 def format_datetime(value, format='medium'):
-  date = dateutil.parser.parse(value)
-  if format == 'full':
-      format="EEEE MMMM, d, y 'at' h:mma"
-  elif format == 'medium':
-      format="EE MM, dd, y h:mma"
-  return babel.dates.format_datetime(date, format)
+    if type(value) == datetime:
+        date = value
+    else:
+        date = dateutil.parser.parse(value)
+    if format == 'full':
+        format = "EEEE MMMM, d, y 'at' h:mma"
+    elif format == 'medium':
+        format = "EE MM, dd, y h:mma"
+    return babel.dates.format_datetime(date, format)
+
 
 app.jinja_env.filters['datetime'] = format_datetime
+
 
 @app.route('/')
 def index():

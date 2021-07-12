@@ -7,6 +7,8 @@ from Fyyur.extensions import db
 from forms import *
 
 bp = Blueprint("shows", __name__)
+
+
 @bp.route('/shows')
 def shows():
   # displays list of shows at /shows
@@ -14,26 +16,24 @@ def shows():
     data = []
     shows = Show.query.all()
     for show in shows:
-      print(show.start_time)
-      data.append({
-      "venue_id": show.venue_id,
-      "venue_name": show.venue_name,
-      "artist_id": show.artist_id,
-      "artist_name": show.artist_name,
-      "artist_image_link": show.artist_image_link,
-      "start_time": 
-      show.start_time
-      # show.start_time.strftime('%m/%d/%Y, %H:%M')
-      # datetime.strptime(show.start_time, '%Y%m/%d/, %H:%M')
-      })
+        data.append({
+            "venue_id": show.venue_id,
+            "venue_name": show.venue_name,
+            "artist_id": show.artist_id,
+            "artist_name": show.artist_name,
+            "artist_image_link": show.artist_image_link,
+            "start_time": show.start_time
+        })
 
     return render_template('pages/shows.html', shows=data)
+
 
 @bp.route('/shows/create')
 def create_shows():
   # renders form. do not touch.
-  form = ShowForm()
-  return render_template('forms/new_show.html', form=form)
+    form = ShowForm()
+    return render_template('forms/new_show.html', form=form)
+
 
 @bp.route('/shows/create', methods=['POST'])
 def create_show_submission():
@@ -44,17 +44,17 @@ def create_show_submission():
     venue = Venue.query.get(form.venue_id.data)
     try:
         show = Show(
-        id = num_shows + 1,
-        artist_id = form.artist_id.data,
-        artist_name = artist.name,
-        artist_image_link = artist.image_link,
-        venue_id = form.venue_id.data,
-        venue_name = venue.name,
-        start_time = form.start_time.data
+            id=num_shows + 1,
+            artist_id=form.artist_id.data,
+            artist_name=artist.name,
+            artist_image_link=artist.image_link,
+            venue_id=form.venue_id.data,
+            venue_name=venue.name,
+            start_time=form.start_time.data
         )
         if (form.start_time.data > datetime.now()):
             artist.num_upcoming_shows += 1
-            venue.num_upcoming_shows +=1
+            venue.num_upcoming_shows += 1
             db.session.add(artist, venue)
             db.session.commit()
         db.session.add(show)
@@ -63,9 +63,8 @@ def create_show_submission():
         flash('Show was successfully listed!')
     except:
         db.session.rollback()
-      # on unsuccessful db insert, flash an error instead.
+        # on unsuccessful db insert, flash an error instead.
         flash('An error occurred. Show could not be listed.')
     finally:
         db.session.close()
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     return render_template('pages/home.html')
