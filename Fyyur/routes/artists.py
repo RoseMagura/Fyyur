@@ -44,7 +44,7 @@ def search_artists():
 
 @bp.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
-  # shows the venue page with the given venue_id
+  # shows the artist page with the given artist_id
     artist = Artist.query.get(artist_id)
     past_list = []
     upcoming_list = []
@@ -133,6 +133,7 @@ def edit_artist_submission(artist_id):
     # artist record with ID <artist_id> using the new attributes
     form = ArtistForm(request.form)
     artist = Artist.query.get(artist_id)
+    # TODO: Fix this route 
     artist = {
         "id": artist.id,
         "name": artist.name,
@@ -145,10 +146,6 @@ def edit_artist_submission(artist_id):
         "seeking_venue": artist.seeking_venue,
         "seeking_description": artist.seeking_description,
         "image_link": artist.image_link,
-        # "past_shows": past_list,
-        # "upcoming_shows": upcoming_list,
-        # "past_shows_count": past_shows,
-        # "upcoming_shows_count": upcoming_shows
     }
     return redirect(url_for('show_artist', artist_id=artist_id))
 
@@ -183,16 +180,30 @@ def create_artist_submission():
 
     try:
         db.session.add(artist)
-        db.session.commit()
         # on successful db insert, flash success
         flash('Artist ' + request.form['name'] + ' was successfully listed!')
-    # on unsuccessful db insert, flash an error instead.
     except:
+        # on unsuccessful db insert, flash an error
         flash('An error occurred. Artist ' +
               form.name + ' could not be listed.')
-        db.rollback()
+        db.session.rollback()
     finally:
         db.session.commit()
     return render_template('pages/home.html')
 
-# TODO: Delete Artists
+# Delete Artist
+@bp.route('/artists/<int:id>', methods=['DELETE'])
+def delete_artist(id):
+    artist = Artist.query.get(id)
+    name = artist.name
+    try:
+        db.session.delete(artist)
+        print(f'Artist {name} was successfully deleted!')
+        flash(f'Artist {name} was successfully deleted!')
+    except:
+        print(f"Artist {name} could not be deleted.")   
+        flash(f'Artist {name} could not deleted')
+        db.session.rollback() 
+    finally:
+        db.session.commit()
+    return render_template('pages/home.html')

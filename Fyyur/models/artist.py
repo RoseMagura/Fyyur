@@ -18,4 +18,4 @@ class Artist(db.Model):
     shows = db.relationship('Show', backref='Artist', lazy=True)
 
     def __repr__(self):
-        return '<Show {} {}>'.format(self.id, self.name)
+        return '<Artist ID:{} Name:{}>'.format(self.id, self.name)

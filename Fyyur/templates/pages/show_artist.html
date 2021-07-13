@@ -22,18 +22,12 @@ endblock %} {% block content %}
       else %}No Phone{% endif %}
     </p>
     <p>
-      <i class="fas fa-link"></i> {% if artist.website %}<a
-        href="{{ artist.website }}"
-        target="_blank"
-        >{{ artist.website }}</a
-      >{% else %}No Website{% endif %}
+      <i class="fas fa-link"></i> {% if artist.website %}<a href="{{ artist.website }}" target="_blank">{{
+        artist.website }}</a>{% else %}No Website{% endif %}
     </p>
     <p>
-      <i class="fab fa-facebook-f"></i> {% if artist.facebook_link %}<a
-        href="{{ artist.facebook_link }}"
-        target="_blank"
-        >{{ artist.facebook_link }}</a
-      >{% else %}No Facebook Link{% endif %}
+      <i class="fab fa-facebook-f"></i> {% if artist.facebook_link %}<a href="{{ artist.facebook_link }}"
+        target="_blank">{{ artist.facebook_link }}</a>{% else %}No Facebook Link{% endif %}
     </p>
     {% if artist.seeking_venue %}
     <div class="seeking">
@@ -86,6 +80,18 @@ endblock %} {% block content %}
     </div>
     {% endfor %}
   </div>
+  <button onclick="deleteArtist({{artist.id}})">Delete Artist</button>
 </section>
-
+{% block javascript %}
+<script>
+  const deleteArtist = artistId => {
+    fetch("/artists/" + artistId, { method: "DELETE" })
+      .then(
+        setTimeout(function () {
+          window.location.href = "/artists";
+        }, 1000)
+      );
+  }
+</script>
+{% endblock %}
 {% endblock %}

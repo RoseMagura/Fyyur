@@ -99,7 +99,7 @@ block content %}
 </section>
 {% block javascript %}
 <script>
-  function venueDelete(venue_id) {
+  const venueDelete = venue_id => {
     fetch("/venues/" + venue_id, { method: "DELETE" }).then(
       setTimeout(function() {
         window.location.href = "/venues";
