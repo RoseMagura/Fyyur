@@ -87,7 +87,7 @@ endblock %} {% block content %}
   const deleteArtist = artistId => {
     fetch("/artists/" + artistId, { method: "DELETE" })
       .then(
-        setTimeout(function () {
+        setTimeout(() => {
           window.location.href = "/artists";
         }, 1000)
       );

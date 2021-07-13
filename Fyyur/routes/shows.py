@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash
+from flask import Blueprint, render_template, request, flash, redirect
 from Fyyur.models.artist import Artist
 from Fyyur.models.venue import Venue
 from Fyyur.models.show import Show
@@ -17,6 +17,7 @@ def shows():
     shows = Show.query.all()
     for show in shows:
         data.append({
+            "id": show.id,
             "venue_id": show.venue_id,
             "venue_name": show.venue_name,
             "artist_id": show.artist_id,
@@ -67,4 +68,20 @@ def create_show_submission():
         flash('An error occurred. Show could not be listed.')
     finally:
         db.session.close()
+    return render_template('pages/home.html')
+
+# Delete Show
+@bp.route('/shows/<int:id>', methods=['DELETE'])
+def delete_show(id):
+    show = Show.query.get(id)
+    try:
+        db.session.delete(show)
+        print('Show was successfully deleted!')
+        flash('Show was successfully deleted!')
+    except:
+        print("Show could not be deleted.")   
+        flash('Show could not deleted.')
+        db.session.rollback() 
+    finally:
+        db.session.commit()
     return render_template('pages/home.html')
