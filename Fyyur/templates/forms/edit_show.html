@@ -1,0 +1,10 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Edit Show{% endblock %}
+{% block content %}
+  <div class="form-wrapper">
+    <form class="form" method="post" action="/shows/{{show.id}}/edit">
+
+      <input type="submit" value="Edit Show" class="btn btn-primary btn-lg btn-block">
+    </form>
+  </div>
+{% endblock %}

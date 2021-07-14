@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect
+from flask import Blueprint, render_template, request, flash
 from Fyyur.models.artist import Artist
 from Fyyur.models.venue import Venue
 from Fyyur.models.show import Show
@@ -8,33 +8,14 @@ from forms import *
 
 bp = Blueprint("shows", __name__)
 
-# Create Show
+# Create Show: Display form
 @bp.route('/shows/create')
 def create_shows():
-  # renders form. do not touch.
     form = ShowForm()
     return render_template('forms/new_show.html', form=form)
 
-# Read Shows
-@bp.route('/shows')
-def shows():
-  # displays list of shows at /shows
-  # num_shows should be aggregated based on number of upcoming shows per venue.
-    data = []
-    shows = Show.query.all()
-    for show in shows:
-        data.append({
-            "id": show.id,
-            "venue_id": show.venue_id,
-            "venue_name": show.venue_name,
-            "artist_id": show.artist_id,
-            "artist_name": show.artist_name,
-            "artist_image_link": show.artist_image_link,
-            "start_time": show.start_time
-        })
-    return render_template('pages/shows.html', shows=data)
 
-
+# Create Show: Posting form
 @bp.route('/shows/create', methods=['POST'])
 def create_show_submission():
     # called to create new shows in the db, upon submitting new show listing form
@@ -69,12 +50,37 @@ def create_show_submission():
         db.session.close()
     return render_template('pages/home.html')
 
+
+# Read All Shows
+@bp.route('/shows')
+def shows():
+  # displays list of shows at /shows
+  # num_shows should be aggregated based on number of upcoming shows per venue.
+    shows = Show.query.all()
+    return render_template('pages/shows.html', shows=shows)
+
+# Read Individual Show
+@bp.route('/shows/<int:id>')
+def display_individual_show(id):
+    show = Show.query.get(id)
+    return render_template('pages/show_details.html', show=show)
+
+
 #TODO: Update Show
+# Render form for editing show
+@bp.route('/shows/<int:id>/edit', methods=['GET'])
+def edit_show(id):
+    form = ShowForm(request.form)
+    show = Show.query.get(id)
+    return render_template('forms/edit_show.html', form=form, show=show)
+# @bp.route('/shows/<int:id>/edit', methods=['POST'])
 
 # Delete Show
 @bp.route('/shows/<int:id>', methods=['DELETE'])
 def delete_show(id):
     show = Show.query.get(id)
+    flash(show) # TODO: debug flash
+    print(show)
     try:
         db.session.delete(show)
         print('Show was successfully deleted!')
@@ -85,4 +91,6 @@ def delete_show(id):
         db.session.rollback()
     finally:
         db.session.commit()
-    return render_template('pages/home.html')
+    return render_template('pages/shows.html')
+
+

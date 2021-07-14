@@ -170,12 +170,13 @@ def create_artist_submission():
         db.session.commit()
     return render_template('pages/home.html')
 
+
 # Delete Artist
-
-
 @bp.route('/artists/<int:id>', methods=['DELETE'])
 def delete_artist(id):
     artist = Artist.query.get(id)
+    flash('deleting', artist) # TODO: debug flash
+    print('deleting', artist)
     name = artist.name
     try:
         db.session.delete(artist)
@@ -187,4 +188,4 @@ def delete_artist(id):
         db.session.rollback()
     finally:
         db.session.commit()
-    return render_template('pages/home.html')
+    return render_template('pages/artists.html')

@@ -9,20 +9,22 @@ const deleteArtist = event => {
 
 const deleteVenue = e => {
   venueId = e.target.value;
-  fetch("/venues/" + venueId, { method: "DELETE" }).then(
-    setTimeout(function () {
-      window.location.href = "/venues";
-    }, 1000)
-  );
+  fetch("/venues/" + venueId, { method: "DELETE" })
+    .then(
+      setTimeout(() => {
+        window.location.href = "/venues";
+      }, 1000)
+    );
 }
 
 const deleteShow = evt => {
   const showId = evt.target.value;
-  fetch("/shows/" + showId, { method: "DELETE" }).then(
-    setTimeout(() => {
-      location.reload();
-    }, 1000)
-  );
+  fetch("/shows/" + showId, { method: "DELETE" })
+    .then(
+      setTimeout(() => {
+        window.location.href = "/shows";
+      }, 1000)
+    );
 }
 
 const openForm = () => {

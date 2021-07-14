@@ -168,9 +168,7 @@ def delete_venue(venue_id):
         db.session.rollback()
     finally:
         db.session.close()
-    # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
-    # clicking that button delete it from the db then redirect the user to the homepage
-    return None
+    return redirect('/venues')
 
 
 @bp.route('/venues/<int:venue_id>/edit', methods=['GET'])
@@ -178,18 +176,18 @@ def edit_venue(venue_id):
     form = VenueForm(request.form)
     v = Venue.query.get(venue_id)
     venue = {
-        "id": v.id,
+        # "id": v.id,
         "name": v.name,
-        "genres": v.genres,
-        "address": v.address,
-        "city": v.city,
-        "state": v.state,
-        "phone": v.phone,
-        "website": v.website,
-        "facebook_link": v.facebook_link,
-        "seeking_talent": v.seeking_talent,
-        "seeking_description": v.seeking_description,
-        "image_link": v.image_link
+        # "genres": v.genres,
+        # "address": v.address,
+        # "city": v.city,
+        # "state": v.state,
+        # "phone": v.phone,
+        # "website": v.website,
+        # "facebook_link": v.facebook_link,
+        # "seeking_talent": v.seeking_talent,
+        # "seeking_description": v.seeking_description,
+        # "image_link": v.image_link
     }
     return render_template('forms/edit_venue.html', form=form, venue=venue)
 
