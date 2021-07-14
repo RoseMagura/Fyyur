@@ -33,7 +33,6 @@ const deleteArtistBtn = document.getElementById('delete-artist');
 const editBtns = document.getElementsByClassName('edit');
 
 const deleteShowBtns = document.getElementsByClassName('delete-show');
-console.log(deleteShowBtns);
 
 const deleteVenueBtn = document.getElementById('delete-venue');
 

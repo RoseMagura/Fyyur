@@ -95,35 +95,11 @@ def show_artist(artist_id):
     return render_template('pages/show_artist.html', artist=data)
 
 
-
 #  Update Artists
 @bp.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
     artist = Artist.query.get(artist_id)
     form = ArtistForm(request.form)
-    artist.name = form.name.data
-    artist.genres = form.genres.data
-    artist.city = form.city.data
-
-    artist = Artist(
-        id = artist_id,
-        name = form.name.data,
-        genres = form.genres.data,
-        city = form.city.data,
-        state = form.state.data,
-        phone = form.phone.data,
-        facebook_link = form.facebook_link.data,
-        image_link = 'https://i.guim.co.uk/img/media/ad98f2dc808f18131e35e59c05ba6212671e8227/94_0_3061_1838/master/3061.jpg?width=1920&quality=85&auto=format&fit=max&s=c515d483b75926f0d68512f263c2c26f',
-    )
-    try:
-        db.session.add(artist)
-        db.session.commit()
-        flash('Updated artist information')
-    except:
-        db.session.rollback()
-        flash('Error. Could not update artist information')
-    finally:
-        db.session.close()
     return render_template('forms/edit_artist.html', form=form, artist=artist)
 
 
@@ -132,22 +108,25 @@ def edit_artist_submission(artist_id):
     # take values from the form submitted, and update existing
     # artist record with ID <artist_id> using the new attributes
     form = ArtistForm(request.form)
-    artist = Artist.query.get(artist_id)
-    # TODO: Fix this route 
-    artist = {
-        "id": artist.id,
-        "name": artist.name,
-        "genres": artist.genres.split(','),
-        "city": artist.city,
-        "state": artist.state,
-        "phone": artist.phone,
-        "website": artist.website,
-        "facebook_link": artist.facebook_link,
-        "seeking_venue": artist.seeking_venue,
-        "seeking_description": artist.seeking_description,
-        "image_link": artist.image_link,
-    }
-    return redirect(url_for('show_artist', artist_id=artist_id))
+    try:
+        db.session.query(Artist).filter(Artist.id == artist_id).\
+            update({
+                "name": form.name.data,
+                "genres": form.genres.data,
+                "city": form.city.data,
+                "state": form.state.data,
+                "phone": form.phone.data,
+                "facebook_link": form.facebook_link.data,
+            }, synchronize_session="fetch")
+        db.session.commit()
+        flash('Updated artist information')
+    except:
+        db.session.rollback()
+        flash('Error. Could not update artist information')
+    finally:
+        db.session.close()
+    return redirect(url_for('artists.show_artist', artist_id=artist_id))
+
 
 # Create Artists
 @bp.route('/artists/create', methods=['GET'])
@@ -192,6 +171,8 @@ def create_artist_submission():
     return render_template('pages/home.html')
 
 # Delete Artist
+
+
 @bp.route('/artists/<int:id>', methods=['DELETE'])
 def delete_artist(id):
     artist = Artist.query.get(id)
@@ -201,9 +182,9 @@ def delete_artist(id):
         print(f'Artist {name} was successfully deleted!')
         flash(f'Artist {name} was successfully deleted!')
     except:
-        print(f"Artist {name} could not be deleted.")   
+        print(f"Artist {name} could not be deleted.")
         flash(f'Artist {name} could not deleted')
-        db.session.rollback() 
+        db.session.rollback()
     finally:
         db.session.commit()
     return render_template('pages/home.html')

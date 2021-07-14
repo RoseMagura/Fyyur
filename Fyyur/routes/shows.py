@@ -8,7 +8,14 @@ from forms import *
 
 bp = Blueprint("shows", __name__)
 
+# Create Show
+@bp.route('/shows/create')
+def create_shows():
+  # renders form. do not touch.
+    form = ShowForm()
+    return render_template('forms/new_show.html', form=form)
 
+# Read Shows
 @bp.route('/shows')
 def shows():
   # displays list of shows at /shows
@@ -25,15 +32,7 @@ def shows():
             "artist_image_link": show.artist_image_link,
             "start_time": show.start_time
         })
-
     return render_template('pages/shows.html', shows=data)
-
-
-@bp.route('/shows/create')
-def create_shows():
-  # renders form. do not touch.
-    form = ShowForm()
-    return render_template('forms/new_show.html', form=form)
 
 
 @bp.route('/shows/create', methods=['POST'])
@@ -70,6 +69,8 @@ def create_show_submission():
         db.session.close()
     return render_template('pages/home.html')
 
+#TODO: Update Show
+
 # Delete Show
 @bp.route('/shows/<int:id>', methods=['DELETE'])
 def delete_show(id):
@@ -79,9 +80,9 @@ def delete_show(id):
         print('Show was successfully deleted!')
         flash('Show was successfully deleted!')
     except:
-        print("Show could not be deleted.")   
+        print("Show could not be deleted.")
         flash('Show could not deleted.')
-        db.session.rollback() 
+        db.session.rollback()
     finally:
         db.session.commit()
     return render_template('pages/home.html')
