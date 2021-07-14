@@ -10,19 +10,10 @@
             <h5><a href="/artists/{{ show.artist_id }}">{{ show.artist_name }}</a></h5>
             <p>playing at</p>
             <h5><a href="/venues/{{ show.venue_id }}">{{ show.venue_name }}</a></h5>
-            <button onclick="deleteShow({{ show.id }})">Delete Show</button>
+            <button class='delete-show' value={{show.id}}>Delete Show</button>
+            <button class='edit'>Edit Show</button>
         </div>
     </div>
     {% endfor %}
 </div>
-{% block javascript %}
-<script>
-    const deleteShow = showId =>
-        fetch("/shows/" + showId, { method: "DELETE" }).then(
-            setTimeout(() => {
-                location.reload();
-            }, 1000)
-        );
-</script>
-{% endblock %}
 {% endblock %}

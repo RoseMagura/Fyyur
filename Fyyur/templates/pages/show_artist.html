@@ -80,18 +80,7 @@ endblock %} {% block content %}
     </div>
     {% endfor %}
   </div>
-  <button onclick="deleteArtist({{artist.id}})">Delete Artist</button>
+  <button id='delete-artist' value={{artist.id}}>Delete Artist</button>
+  <button class="edit">Edit Artist</button>
 </section>
-{% block javascript %}
-<script>
-  const deleteArtist = artistId => {
-    fetch("/artists/" + artistId, { method: "DELETE" })
-      .then(
-        setTimeout(() => {
-          window.location.href = "/artists";
-        }, 1000)
-      );
-  }
-</script>
-{% endblock %}
 {% endblock %}

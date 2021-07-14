@@ -25,18 +25,12 @@ block content %}
       else %}No Phone{% endif %}
     </p>
     <p>
-      <i class="fas fa-link"></i> {% if venue.website %}<a
-        href="{{ venue.website }}"
-        target="_blank"
-        >{{ venue.website }}</a
-      >{% else %}No Website{% endif %}
+      <i class="fas fa-link"></i> {% if venue.website %}<a href="{{ venue.website }}" target="_blank">{{ venue.website
+        }}</a>{% else %}No Website{% endif %}
     </p>
     <p>
-      <i class="fab fa-facebook-f"></i> {% if venue.facebook_link %}<a
-        href="{{ venue.facebook_link }}"
-        target="_blank"
-        >{{ venue.facebook_link }}</a
-      >{% else %}No Facebook Link{% endif %}
+      <i class="fab fa-facebook-f"></i> {% if venue.facebook_link %}<a href="{{ venue.facebook_link }}"
+        target="_blank">{{ venue.facebook_link }}</a>{% else %}No Facebook Link{% endif %}
     </p>
     {% if venue.seeking_talent %}
     <div class="seeking">
@@ -93,18 +87,11 @@ block content %}
     </div>
     {% endfor %}
   </div>
-  <button type="button" onclick="venueDelete({{venue.id}})">
+  <button type="button" id='delete-venue' value={{venue.id}}>
     Delete Venue
   </button>
+  <button type="button" class='edit'>
+    Edit Venue
+  </button>
 </section>
-{% block javascript %}
-<script>
-  const venueDelete = venue_id => {
-    fetch("/venues/" + venue_id, { method: "DELETE" }).then(
-      setTimeout(function() {
-        window.location.href = "/venues";
-      }, 1000)
-    );
-  }
-</script>
-{% endblock %} {% endblock %}
+{% endblock %}
