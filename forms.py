@@ -1,22 +1,30 @@
 from datetime import datetime
 from flask_wtf import Form
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField,\
-BooleanField
+    BooleanField
 from wtforms.validators import DataRequired, AnyOf, URL, Regexp
 from enum import Enum
+from Fyyur.models.venue import Venue
+from Fyyur.models.show import Show
+
 
 class ShowForm(Form):
-    artist_id = StringField(
-        'artist_id'
+    artist_id = SelectField(
+        'artist_id',
+        coerce=int,
+        validators=[DataRequired()],
     )
-    venue_id = StringField(
-        'venue_id'
+    venue_id = SelectField(
+        'venue_id',
+        coerce=int,
+        validators=[DataRequired()],
     )
     start_time = DateTimeField(
         'start_time',
         validators=[DataRequired()],
-        default= datetime.today()
+        default=datetime.today()
     )
+
 
 class VenueForm(Form):
     name = StringField(
@@ -118,6 +126,7 @@ class VenueForm(Form):
     facebook_link = StringField(
         'facebook_link', validators=[URL()]
     )
+
 
 class ArtistForm(Form):
     name = StringField(
