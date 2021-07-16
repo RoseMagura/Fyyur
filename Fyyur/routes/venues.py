@@ -59,7 +59,6 @@ def search_venues():
             "num_upcoming_shows": venue.num_upcoming_shows
         }
         results_list.append(data)
-
     response = {
         "count": len(venue_list),
         "data": results_list
