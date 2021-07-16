@@ -1,16 +1,7 @@
+from Fyyur.utilities.helper_func import insert
 from Fyyur.seeds.artist_data import artists
 from Fyyur.seeds.venue_data import venues
 from Fyyur.seeds.show_data import shows
-
-
-def insert(db, record):
-    try:
-        db.session.add(record)
-        db.session.commit()
-        print('Successfully added')
-    except:
-        db.session.rollback()
-        print('Error with inserting')
 
 
 def seed_artists(db):

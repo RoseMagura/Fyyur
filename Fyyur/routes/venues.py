@@ -5,7 +5,7 @@ from Fyyur.models.show import Show
 from datetime import datetime
 from Fyyur.extensions import db
 from forms import *
-from Fyyur.utilities.helper_func import format_genres
+from Fyyur.utilities.helper_func import format_genres, update
 
 bp = Blueprint("venues", __name__)
 
@@ -171,29 +171,27 @@ def delete_venue(venue_id):
     return redirect('/venues')
 
 
+# Render edit form
 @bp.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
     form = VenueForm(request.form)
     v = Venue.query.get(venue_id)
-    venue = {
-        # "id": v.id,
-        "name": v.name,
-        # "genres": v.genres,
-        # "address": v.address,
-        # "city": v.city,
-        # "state": v.state,
-        # "phone": v.phone,
-        # "website": v.website,
-        # "facebook_link": v.facebook_link,
-        # "seeking_talent": v.seeking_talent,
-        # "seeking_description": v.seeking_description,
-        # "image_link": v.image_link
-    }
-    return render_template('forms/edit_venue.html', form=form, venue=venue)
+    return render_template('forms/edit_venue.html', form=form, venue=v)
 
 
 @bp.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
-    # TODO: take values from the form submitted, and update existing
+    # take values from the form submitted, and update existing
     # venue record with ID <venue_id> using the new attributes
+    form = ArtistForm(request.form)
+    result = update(db, Venue, venue_id, {
+        "name": form.name.data,
+        "genres": form.genres.data,
+        "city": form.city.data,
+        "state": form.state.data,
+        "phone": form.phone.data,
+        "facebook_link": form.facebook_link.data,
+    }, 'Successfully updated venue information!',
+        'Error. Could not update venue information.')
+    flash(result)
     return redirect(url_for('venues.show_venue', venue_id=venue_id))

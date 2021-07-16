@@ -1,4 +1,4 @@
-from Fyyur.utilities.helper_func import setup_show_form
+from Fyyur.utilities.helper_func import delete, insert, setup_show_form, update
 from flask import Blueprint, render_template, request, flash
 from Fyyur.models.artist import Artist
 from Fyyur.models.venue import Venue
@@ -26,40 +26,30 @@ def create_show_submission():
     num_shows = Show.query.count()
     artist = Artist.query.get(form.artist_id.data)
     venue = Venue.query.get(form.venue_id.data)
-    try:
-        show = Show(
-            id=num_shows + 1,
-            artist_id=form.artist_id.data,
-            artist_name=artist.name,
-            artist_image_link=artist.image_link,
-            venue_id=form.venue_id.data,
-            venue_name=venue.name,
-            venue_image_link=venue.image_link,
-            start_time=form.start_time.data
-        )
-        if (form.start_time.data > datetime.now()):
-            artist.num_upcoming_shows += 1
-            venue.num_upcoming_shows += 1
-            db.session.add(artist, venue)
-            db.session.commit()
-        db.session.add(show)
-        db.session.commit()
-        # on successful db insert, flash success
-        flash('Show was successfully listed!')
-    except:
-        db.session.rollback()
-        # on unsuccessful db insert, flash an error instead.
-        flash('An error occurred. Show could not be listed.')
-    finally:
-        db.session.close()
+    show = Show(
+        id=num_shows + 1,
+        artist_id=form.artist_id.data,
+        artist_name=artist.name,
+        artist_image_link=artist.image_link,
+        venue_id=form.venue_id.data,
+        venue_name=venue.name,
+        venue_image_link=venue.image_link,
+        start_time=form.start_time.data
+    )
+    if (form.start_time.data > datetime.now()):
+        artist.num_upcoming_shows += 1
+        venue.num_upcoming_shows += 1
+        insert(db, artist)
+        insert(db, venue)
+    result = insert(db, show)
+    flash(result)
     return render_template('pages/home.html')
 
 
 # Read All Shows
 @bp.route('/shows')
 def shows():
-  # displays list of shows at /shows
-  # num_shows should be aggregated based on number of upcoming shows per venue.
+  # displays list of all shows at /shows
     shows = Show.query.all()
     return render_template('pages/shows.html', shows=shows)
 
@@ -71,21 +61,30 @@ def display_individual_show(id):
     return render_template('pages/show_details.html', show=show)
 
 
-# TODO: Update Show
 # Render form for editing show
 @bp.route('/shows/<int:id>/edit', methods=['GET'])
 def edit_show(id):
     show = Show.query.get(id)
-    flash(show.artist_id)
-    flash(show.venue_id)
     form = setup_show_form(ShowForm(), show.artist_id, show.venue_id)
     return render_template('forms/edit_show.html', form=form, show=show)
 
 
+# Update Show
 @bp.route('/shows/<int:id>/edit', methods=['POST'])
 def edit_show_submission(id):
     form = ShowForm(request.form)
-    print(form.artist_id.data)
+    artist = Artist.query.get(form.artist_id.data)
+    venue = Venue.query.get(form.venue_id.data)
+    result = update(db, Show, id, {
+        "artist_id": form.artist_id.data,
+        "artist_name": artist.name,
+        "artist_image_link": artist.image_link,
+        "venue_id": form.venue_id.data,
+        "venue_name": venue.name,
+        "venue_image_link": venue.image_link,
+        "start_time": form.start_time.data
+    }, 'Successfully updated show!', 'Error with updating show.')
+    flash(result)
     return render_template('pages/home.html')
 
 
@@ -95,14 +94,5 @@ def delete_show(id):
     show = Show.query.get(id)
     flash(show)  # TODO: debug flash
     print(show)
-    try:
-        db.session.delete(show)
-        print('Show was successfully deleted!')
-        flash('Show was successfully deleted!')
-    except:
-        print("Show could not be deleted.")
-        flash('Show could not deleted.')
-        db.session.rollback()
-    finally:
-        db.session.commit()
+    delete(db, show, 'Show was successfully deleted!', 'Show could not deleted.')
     return render_template('pages/shows.html')

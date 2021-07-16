@@ -15,5 +15,4 @@ class Show(db.Model):
     venue_image_link = db.Column(db.String(500))
 
     def __repr__(self):
-        return f'<Show Artist ID:{self.artist_id} Venue ID:{self.venue_id}> \
-                    Venue Image: {self.venue_image_link}'
+        return f'<Show Artist ID:{self.artist_id} Venue ID:{self.venue_id}>'

@@ -5,7 +5,7 @@ from Fyyur.models.show import Show
 from datetime import datetime
 from Fyyur.extensions import db
 from forms import *
-from Fyyur.utilities.helper_func import format_genres
+from Fyyur.utilities.helper_func import delete, format_genres, update
 
 bp = Blueprint("artists", __name__)
 
@@ -108,23 +108,16 @@ def edit_artist_submission(artist_id):
     # take values from the form submitted, and update existing
     # artist record with ID <artist_id> using the new attributes
     form = ArtistForm(request.form)
-    try:
-        db.session.query(Artist).filter(Artist.id == artist_id).\
-            update({
-                "name": form.name.data,
-                "genres": form.genres.data,
-                "city": form.city.data,
-                "state": form.state.data,
-                "phone": form.phone.data,
-                "facebook_link": form.facebook_link.data,
-            }, synchronize_session="fetch")
-        db.session.commit()
-        flash('Updated artist information')
-    except:
-        db.session.rollback()
-        flash('Error. Could not update artist information')
-    finally:
-        db.session.close()
+    result = update(db, Artist, artist_id, {
+        "name": form.name.data,
+        "genres": form.genres.data,
+        "city": form.city.data,
+        "state": form.state.data,
+        "phone": form.phone.data,
+        "facebook_link": form.facebook_link.data,
+    }, 'Successfully updated artist information!',
+        'Error. Could not update artist information.')
+    flash(result)
     return redirect(url_for('artists.show_artist', artist_id=artist_id))
 
 
@@ -175,17 +168,10 @@ def create_artist_submission():
 @bp.route('/artists/<int:id>', methods=['DELETE'])
 def delete_artist(id):
     artist = Artist.query.get(id)
-    flash('deleting', artist) # TODO: debug flash
+    flash('deleting', artist)  # TODO: debug flash
     print('deleting', artist)
     name = artist.name
-    try:
-        db.session.delete(artist)
-        print(f'Artist {name} was successfully deleted!')
-        flash(f'Artist {name} was successfully deleted!')
-    except:
-        print(f"Artist {name} could not be deleted.")
-        flash(f'Artist {name} could not deleted')
-        db.session.rollback()
-    finally:
-        db.session.commit()
+    result = delete(db, artist, f'Artist {name} was successfully deleted!',
+                    f'Artist {name} could not deleted')
+    flash(result)
     return render_template('pages/artists.html')
