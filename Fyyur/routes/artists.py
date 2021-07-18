@@ -108,6 +108,7 @@ def edit_artist_submission(artist_id):
     # take values from the form submitted, and update existing
     # artist record with ID <artist_id> using the new attributes
     form = ArtistForm(request.form)
+    print(form.image_link.data)
     result = update(db, Artist, artist_id, {
         "name": form.name.data,
         "genres": form.genres.data,
@@ -115,6 +116,11 @@ def edit_artist_submission(artist_id):
         "state": form.state.data,
         "phone": form.phone.data,
         "facebook_link": form.facebook_link.data,
+        "website": form.website.data,
+        "seeking_venue": form.seeking_venue.data,
+        "seeking_description": form.seeking_description.data,
+        "image_link": form.image_link.data
+
     }, 'Successfully updated artist information!',
         'Error. Could not update artist information.')
     flash(result)
