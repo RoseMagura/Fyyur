@@ -11,27 +11,16 @@ bp = Blueprint("artists", __name__)
 # Create Artists: Display Form
 @bp.route('/artists/create', methods=['GET'])
 def create_artist_form():
-    form = ArtistForm()
+    form = ArtistForm(obj=Artist())
     return render_template('forms/new_artist.html', form=form)
 
 
 # Create Show: Posting form
 @bp.route('/artists/create', methods=['POST'])
 def create_artist_submission():
-    # called upon submitting the new artist listing form
-    form = ArtistForm(request.form)
-    artist = Artist(
-        name=form.name.data,
-        genres=form.genres.data,
-        city=form.city.data,
-        state=form.state.data,
-        phone=form.phone.data,
-        facebook_link=form.facebook_link.data,
-        website=form.website.data,
-        seeking_venue=form.seeking_venue.data,
-        seeking_description=form.seeking_description.data,
-        image_link=form.image_link.data
-    )
+    form = ArtistForm()
+    artist = Artist()
+    form.populate_obj(artist)
     result = insert(db, artist, f'Artist {artist.name} was successfully listed!',
                     f'An error occurred. Artist {artist.name} could not be listed.')
     flash(result)
@@ -126,7 +115,7 @@ def show_artist(artist_id):
 @bp.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
     artist = Artist.query.get(artist_id)
-    form = ArtistForm(request.form)
+    form = ArtistForm(obj=artist)
     return render_template('forms/edit_artist.html', form=form, artist=artist)
 
 
@@ -134,9 +123,9 @@ def edit_artist(artist_id):
 @bp.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
     # take values from the form submitted, and update existing artist
-    form = ArtistForm(request.form)
-    print(form.image_link.data)
-    result = update(db, Artist, artist_id, {
+    form = ArtistForm()
+    result = update(db, Artist, artist_id, 
+    {
         "name": form.name.data,
         "genres": form.genres.data,
         "city": form.city.data,
@@ -148,7 +137,8 @@ def edit_artist_submission(artist_id):
         "seeking_description": form.seeking_description.data,
         "image_link": form.image_link.data
 
-    }, 'Successfully updated artist information!',
+    }
+    , 'Successfully updated artist information!',
         'Error. Could not update artist information.')
     flash(result)
     return redirect(url_for('artists.show_artist', artist_id=artist_id))

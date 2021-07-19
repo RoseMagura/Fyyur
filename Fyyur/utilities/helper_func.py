@@ -22,7 +22,7 @@ def setup_show_form(form, default_artist='', default_venue=''):
 
 
 def insert(db, record, success_msg='Successfully inserted into database',
-           error_msg='Error with inserting into database:'):
+           error_msg='Error with inserting into database'):
     try:
         db.session.add(record)
         db.session.commit()
