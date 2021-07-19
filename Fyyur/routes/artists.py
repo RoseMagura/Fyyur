@@ -133,8 +133,7 @@ def edit_artist(artist_id):
 # Update Artists: Posting form
 @bp.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
-    # take values from the form submitted, and update existing
-    # artist record with ID <artist_id> using the new attributes
+    # take values from the form submitted, and update existing artist
     form = ArtistForm(request.form)
     print(form.image_link.data)
     result = update(db, Artist, artist_id, {
@@ -159,10 +158,8 @@ def edit_artist_submission(artist_id):
 @ bp.route('/artists/<int:id>', methods=['DELETE'])
 def delete_artist(id):
     artist = Artist.query.get(id)
-    flash('deleting', artist)  # TODO: debug flash
-    print('deleting', artist)
     name = artist.name
     result = delete(db, artist, f'Artist {name} was successfully deleted!',
                     f'Artist {name} could not deleted')
     flash(result)
-    return render_template('pages/artists.html')
+    return redirect('/artists')

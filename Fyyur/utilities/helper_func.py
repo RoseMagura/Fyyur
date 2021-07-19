@@ -1,4 +1,3 @@
-from flask.helpers import flash
 from Fyyur.models.artist import Artist
 from Fyyur.models.venue import Venue
 
@@ -23,15 +22,16 @@ def setup_show_form(form, default_artist='', default_venue=''):
 
 
 def insert(db, record, success_msg='Successfully inserted into database',
-           error_msg='Error with inserting into database'):
+           error_msg='Error with inserting into database:'):
     try:
         db.session.add(record)
         db.session.commit()
         print(success_msg)
         result = success_msg
-    except:
+    except Exception as e:
         db.session.rollback()
         print(error_msg)
+        print(e)
         result = error_msg
     finally:
         db.session.close()
@@ -46,10 +46,10 @@ def update(db, entity, id, obj, success_msg='Successfully updated record',
         db.session.commit()
         result = success_msg
         print(result)
-    except:
+    except Exception as e:
         db.session.rollback()
         result = error_msg
-        print(result)
+        print(result, e)
     finally:
         db.session.close()
     return result
@@ -62,9 +62,9 @@ def delete(db, record, success_msg='Successfully deleted record',
         db.session.commit()
         print(success_msg)
         result = success_msg
-    except:
+    except Exception as e:
         db.session.rollback()
-        print(error_msg)
+        print(error_msg, e)
         result = error_msg
     finally:
         db.session.close()

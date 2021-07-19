@@ -1,3 +1,4 @@
+from werkzeug.utils import redirect
 from Fyyur.utilities.helper_func import delete, insert, setup_show_form, update
 from flask import Blueprint, render_template, request, flash
 from Fyyur.models.artist import Artist
@@ -47,7 +48,6 @@ def create_show_submission():
 # Read All Shows
 @bp.route('/shows')
 def shows():
-  # displays list of all shows at /shows
     shows = Show.query.all()
     return render_template('pages/shows.html', shows=shows)
 
@@ -90,7 +90,6 @@ def edit_show_submission(id):
 @bp.route('/shows/<int:id>', methods=['DELETE'])
 def delete_show(id):
     show = Show.query.get(id)
-    flash(show)  # TODO: debug flash
-    print(show)
-    delete(db, show, 'Show was successfully deleted!', 'Show could not deleted.')
-    return render_template('pages/shows.html')
+    res = delete(db, show, 'Show was successfully deleted!', 'Show could not deleted.')
+    flash(res)
+    return redirect('/shows')
