@@ -136,7 +136,6 @@ def edit_artist_submission(artist_id):
         "seeking_venue": form.seeking_venue.data,
         "seeking_description": form.seeking_description.data,
         "image_link": form.image_link.data
-
     }
     , 'Successfully updated artist information!',
         'Error. Could not update artist information.')

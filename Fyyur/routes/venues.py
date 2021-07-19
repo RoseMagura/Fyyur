@@ -11,7 +11,7 @@ bp = Blueprint("venues", __name__)
 # Create Venue: Display Form
 @bp.route('/venues/create', methods=['GET'])
 def create_venue_form():
-    form = VenueForm()
+    form = VenueForm(obj=Venue())
     return render_template('forms/new_venue.html', form=form)
 
 
@@ -19,20 +19,9 @@ def create_venue_form():
 @bp.route('/venues/create', methods=['POST'])
 def create_venue_submission():
     #  insert form data as a new Venue record in the db
+    venue = Venue()
     form = VenueForm(request.form)
-    venue = Venue(
-        name=form.name.data,
-        genres=form.genres.data,
-        city=form.city.data,
-        state=form.state.data,
-        address=form.address.data,
-        phone=form.phone.data,
-        facebook_link=form.facebook_link.data,
-        image_link=form.image_link.data,
-        website=form.website.data,
-        seeking_talent=form.seeking_talent.data,
-        seeking_description=form.seeking_description.data
-    )
+    form.populate_obj(venue)
     res = insert(db, venue, f'Venue {venue.name} was successfully listed!',
            f'Venue {venue.name} could not be listed.')
     flash(res)
@@ -151,8 +140,8 @@ def show_venue(venue_id):
 # Update Venue: Display Form
 @bp.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
-    form = VenueForm(request.form)
     v = Venue.query.get(venue_id)
+    form = VenueForm(obj=v)
     return render_template('forms/edit_venue.html', form=form, venue=v)
 
 
@@ -161,7 +150,7 @@ def edit_venue(venue_id):
 def edit_venue_submission(venue_id):
     # take values from the form submitted, and update existing
     # venue record with ID <venue_id> using the new attributes
-    form = VenueForm(request.form)
+    form = VenueForm()
     result = update(db, Venue, venue_id, {
         "name": form.name.data,
         "genres": form.genres.data,
