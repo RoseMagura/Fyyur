@@ -2,7 +2,7 @@ from Fyyur.models.artist import Artist
 
 artists = [
     Artist(
-        id=4,
+        id=1,
         name="Guns N Petals",
         genres=["Rock n Roll"],
         city="San Francisco",
@@ -16,7 +16,7 @@ artists = [
         num_upcoming_shows=0,
     ),
     Artist(
-        id=5,
+        id=2,
         name="Matt Quevedo",
         genres=["Jazz"],
         city="New York",
@@ -28,7 +28,7 @@ artists = [
         num_upcoming_shows=0
     ),
     Artist(
-        id=6,
+        id=3,
         name="The Wild Sax Band",
         genres=["Jazz", "Classical"],
         city="San Francisco",

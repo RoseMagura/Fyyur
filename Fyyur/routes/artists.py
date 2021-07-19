@@ -1,27 +1,54 @@
 from flask import Blueprint, render_template, url_for, request, flash, redirect
 from Fyyur.models.artist import Artist
-from Fyyur.models.venue import Venue
-from Fyyur.models.show import Show
 from datetime import datetime
 from Fyyur.extensions import db
 from forms import *
-from Fyyur.utilities.helper_func import delete, format_genres, update
+from Fyyur.utilities.helper_func import delete, format_genres, insert, update
 
 bp = Blueprint("artists", __name__)
 
 
-# Read artists
+# Create Artists: Display Form
+@bp.route('/artists/create', methods=['GET'])
+def create_artist_form():
+    form = ArtistForm()
+    return render_template('forms/new_artist.html', form=form)
+
+
+# Create Show: Posting form
+@bp.route('/artists/create', methods=['POST'])
+def create_artist_submission():
+    # called upon submitting the new artist listing form
+    form = ArtistForm(request.form)
+    artist = Artist(
+        name=form.name.data,
+        genres=form.genres.data,
+        city=form.city.data,
+        state=form.state.data,
+        phone=form.phone.data,
+        facebook_link=form.facebook_link.data,
+        website=form.website.data,
+        seeking_venue=form.seeking_venue.data,
+        seeking_description=form.seeking_description.data,
+        image_link=form.image_link.data
+    )
+    result = insert(db, artist, f'Artist {artist.name} was successfully listed!',
+                    f'An error occurred. Artist {artist.name} could not be listed.')
+    flash(result)
+    return render_template('pages/home.html')
+
+
+# Read all artists
 @bp.route('/artists')
 def artists():
     data = Artist.query.all()
     return render_template('pages/artists.html', artists=data)
 
 
+# Search artists
 @bp.route('/artists/search', methods=['GET', 'POST'])
 def search_artists():
     # Search on artists with partial string search. Ensure it is case-insensitive.
-    # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
-    # search for "band" should return "The Wild Sax Band".
     search_str = request.args.get('search_term')
     artist_query = Artist.query.filter(
         Artist.name.ilike('%{}%'.format(search_str)))
@@ -42,6 +69,7 @@ def search_artists():
     return render_template('pages/search_artists.html', results=response, search_term=search_str)
 
 
+# Read individual artist
 @bp.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
   # shows the artist page with the given artist_id
@@ -74,7 +102,6 @@ def show_artist(artist_id):
             past_list.append(entry)
     # string formatting
     artist.genres = format_genres(artist.genres)
-
     data = {
         "id": artist.id,
         "name": artist.name,
@@ -95,7 +122,7 @@ def show_artist(artist_id):
     return render_template('pages/show_artist.html', artist=data)
 
 
-#  Update Artists
+# Update Artists: Display Form
 @bp.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
     artist = Artist.query.get(artist_id)
@@ -103,6 +130,7 @@ def edit_artist(artist_id):
     return render_template('forms/edit_artist.html', form=form, artist=artist)
 
 
+# Update Artists: Posting form
 @bp.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
     # take values from the form submitted, and update existing
@@ -127,51 +155,8 @@ def edit_artist_submission(artist_id):
     return redirect(url_for('artists.show_artist', artist_id=artist_id))
 
 
-# Create Artists
-@bp.route('/artists/create', methods=['GET'])
-def create_artist_form():
-    form = ArtistForm()
-    return render_template('forms/new_artist.html', form=form)
-
-
-@bp.route('/artists/create', methods=['POST'])
-def create_artist_submission():
-    # called upon submitting the new artist listing form
-    # insert form data as a new Venue record in the db, instead
-    # modify data to be the data object returned from db insertion
-    form = ArtistForm(request.form)
-    print(form.genres.data, form.image_link.data)
-    num_artists = Artist.query.count()
-    artist = Artist(
-        id=num_artists + 4,
-        name=form.name.data,
-        genres=form.genres.data,
-        city=form.city.data,
-        state=form.state.data,
-        phone=form.phone.data,
-        facebook_link=form.facebook_link.data,
-        website=form.website.data,
-        seeking_venue=form.seeking_venue.data,
-        seeking_description=form.seeking_description.data,
-        image_link=form.image_link.data
-    )
-
-    try:
-        db.session.add(artist)
-        # on successful db insert, flash success
-        flash('Artist ' + request.form['name'] + ' was successfully listed!')
-    except:
-        # on unsuccessful db insert, flash an error
-        flash('An error occurred. Artist ' +
-              form.name + ' could not be listed.')
-        db.session.rollback()
-    finally:
-        db.session.commit()
-    return render_template('pages/home.html')
-
-
 # Delete Artist
-@bp.route('/artists/<int:id>', methods=['DELETE'])
+@ bp.route('/artists/<int:id>', methods=['DELETE'])
 def delete_artist(id):
     artist = Artist.query.get(id)
     flash('deleting', artist)  # TODO: debug flash

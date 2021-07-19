@@ -7,6 +7,7 @@ from Fyyur.seeds.show_data import shows
 def seed_artists(db):
     print('seeding artists')
     for artist in artists:
+        print(artist)
         insert(db, artist)
 
 

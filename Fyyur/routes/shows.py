@@ -23,11 +23,9 @@ def create_shows():
 def create_show_submission():
     # called to create new shows in the db, upon submitting new show listing form
     form = ShowForm()
-    num_shows = Show.query.count()
     artist = Artist.query.get(form.artist_id.data)
     venue = Venue.query.get(form.venue_id.data)
     show = Show(
-        id=num_shows + 1,
         artist_id=form.artist_id.data,
         artist_name=artist.name,
         artist_image_link=artist.image_link,
@@ -61,7 +59,7 @@ def display_individual_show(id):
     return render_template('pages/show_details.html', show=show)
 
 
-# Render form for editing show
+# Update Show: Display Form
 @bp.route('/shows/<int:id>/edit', methods=['GET'])
 def edit_show(id):
     show = Show.query.get(id)

@@ -1,16 +1,46 @@
 from flask import Blueprint, render_template, url_for, request, flash, redirect
-from Fyyur.models.artist import Artist
 from Fyyur.models.venue import Venue
-from Fyyur.models.show import Show
 from datetime import datetime
 from Fyyur.extensions import db
 from forms import *
-from Fyyur.utilities.helper_func import format_genres, update
+from Fyyur.utilities.helper_func import delete, format_genres, insert, update
 
 bp = Blueprint("venues", __name__)
 
 
-@bp.route('/venues', methods=['GET', 'POST'])
+# Create Venue: Display Form
+@bp.route('/venues/create', methods=['GET'])
+def create_venue_form():
+    form = VenueForm()
+    return render_template('forms/new_venue.html', form=form)
+
+
+# Create Venue: Posting form
+@bp.route('/venues/create', methods=['POST'])
+def create_venue_submission():
+    #  insert form data as a new Venue record in the db
+    form = VenueForm(request.form)
+    venue = Venue(
+        name=form.name.data,
+        genres=form.genres.data,
+        city=form.city.data,
+        state=form.state.data,
+        address=form.address.data,
+        phone=form.phone.data,
+        facebook_link=form.facebook_link.data,
+        image_link=form.image_link.data,
+        website=form.website.data,
+        seeking_talent=form.seeking_talent.data,
+        seeking_description=form.seeking_description.data
+    )
+    res = insert(db, venue, f'Venue {venue.name} was successfully listed!',
+           f'Venue {venue.name} could not be listed.')
+    flash(res)
+    return render_template('pages/home.html')
+
+
+# Read All Venues
+@bp.route('/venues', methods=['GET'])
 def venues():
     # num_shows should be aggregated based on number of upcoming shows per venue.
     data = []
@@ -26,15 +56,15 @@ def venues():
         }
         each = Venue.query.filter(
             Venue.city == place.city, Venue.state == place.state).all()
-        for y in each:
-            shows = y.shows
+        for loc in each:
+            shows = loc.shows
             upcoming_shows = 0
             for show in shows:
                 if (show.start_time > datetime.now()):
                     upcoming_shows += 1
             venue = {
-                "id": y.id,
-                "name": y.name,
+                "id": loc.id,
+                "name": loc.name,
                 "num_upcoming_shows": upcoming_shows
             }
             entry['venues'].append(venue)
@@ -42,6 +72,7 @@ def venues():
     return render_template('pages/venues.html', areas=data)
 
 
+# Search Venues
 @bp.route('/venues/search', methods=['POST', 'GET'])
 def search_venues():
     # implement search on artists with partial string search. Ensure it is case-insensitive.
@@ -66,6 +97,7 @@ def search_venues():
     return render_template('pages/search_venues.html', results=response, search_term=search_str)
 
 
+# Read Individual Venue
 @bp.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
     # shows the venue page with the given venue_id
@@ -116,61 +148,7 @@ def show_venue(venue_id):
     return render_template('pages/show_venue.html', venue=data)
 
 
-@bp.route('/venues/create', methods=['GET'])
-def create_venue_form():
-    form = VenueForm()
-    return render_template('forms/new_venue.html', form=form)
-
-
-@bp.route('/venues/create', methods=['POST'])
-def create_venue_submission():
-    #  insert form data as a new Venue record in the db, instead
-    #  modify data to be the data object returned from db insertion
-    form = VenueForm(request.form)
-    num_venues = Venue.query.count()
-    try:
-        venue = Venue(
-            id=num_venues + 1,
-            name=form.name.data,
-            genres=form.genres.data,
-            city=form.city.data,
-            state=form.state.data,
-            address=form.address.data,
-            phone=form.phone.data,
-            facebook_link=form.facebook_link.data,
-            # show a generic image for new venues
-            image_link='https://i.guim.co.uk/img/media/ad98f2dc808f18131e35e59c05ba6212671e8227/94_0_3061_1838/master/3061.jpg?width=1920&quality=85&auto=format&fit=max&s=c515d483b75926f0d68512f263c2c26f'
-        )
-        db.session.add(venue)
-        db.session.commit()
-        # on successful db insert, flash success
-        flash('Venue ' + request.form['name'] + ' was successfully listed!')
-    except:
-        # on unsuccessful db insert, flash an error instead.
-        db.session.rollback()
-        flash('An error occurred. Venue could not be listed.')
-    finally:
-        db.session.close()
-    return render_template('pages/home.html')
-
-
-@bp.route('/venues/<venue_id>', methods=['DELETE'])
-def delete_venue(venue_id):
-    # Complete this endpoint for taking a venue_id, and using
-    # SQLAlchemy ORM to delete a record. Handle cases where the session
-    # commit could fail.
-    venue = Venue.query.get(venue_id)
-    try:
-        db.session.delete(venue)
-        db.session.commit()
-    except:
-        db.session.rollback()
-    finally:
-        db.session.close()
-    return redirect('/venues')
-
-
-# Render edit form
+# Update Venue: Display Form
 @bp.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
     form = VenueForm(request.form)
@@ -178,11 +156,12 @@ def edit_venue(venue_id):
     return render_template('forms/edit_venue.html', form=form, venue=v)
 
 
+# Update Venue: Post Form
 @bp.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
     # take values from the form submitted, and update existing
     # venue record with ID <venue_id> using the new attributes
-    form = ArtistForm(request.form)
+    form = VenueForm(request.form)
     result = update(db, Venue, venue_id, {
         "name": form.name.data,
         "genres": form.genres.data,
@@ -190,7 +169,21 @@ def edit_venue_submission(venue_id):
         "state": form.state.data,
         "phone": form.phone.data,
         "facebook_link": form.facebook_link.data,
+        "image_link": form.image_link.data,
+        "website": form.website.data,
+        "seeking_talent": form.seeking_talent.data,
+        "seeking_description": form.seeking_description.data
     }, 'Successfully updated venue information!',
         'Error. Could not update venue information.')
     flash(result)
     return redirect(url_for('venues.show_venue', venue_id=venue_id))
+
+
+# Delete Venue
+@bp.route('/venues/<venue_id>', methods=['DELETE'])
+def delete_venue(venue_id):
+    venue = Venue.query.get(venue_id)
+    result = delete(db, venue, f'Venue {venue.name} was successfully deleted',
+                    f'Venue {venue.name} could not be deleted')
+    flash(result)
+    return redirect('/venues')
